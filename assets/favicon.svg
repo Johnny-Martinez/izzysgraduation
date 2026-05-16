@@ -1,0 +1,7 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" role="img" aria-label="Class of 2026">
+  <rect width="64" height="64" rx="0" fill="#e7192f"/>
+  <path d="M10 18h44v8H10z" fill="#151515"/>
+  <path d="M17 30h30v18H17z" fill="#fff8ec"/>
+  <path d="M20 14l12-7 12 7-12 7z" fill="#fff8ec"/>
+  <circle cx="48" cy="45" r="4" fill="#ffd326"/>
+</svg>

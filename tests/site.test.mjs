@@ -26,6 +26,8 @@ assert.match(index, /fonts\.googleapis\.com\/css2\?family=Graduate/);
 assert.match(index, /family=Space\+Grotesk/);
 assert.match(styles, /--font-display: "Graduate"/);
 assert.match(styles, /--font-body: "Space Grotesk"/);
+assert.match(styles, /\.photo-grid\s*{[\s\S]*column-count: 3;/, "Gallery should use a masonry column layout on desktop");
+assert.match(styles, /\.gallery-photo img\s*{[\s\S]*height: auto;[\s\S]*object-fit: contain;/, "Gallery photos should keep their natural crop");
 
 const [, galleryMarkup = ""] = index.match(
   /<div class="photo-grid" aria-label="Photo gallery">([\s\S]*?)<\/div>\s*<\/section>/,

@@ -4,7 +4,7 @@ from PIL import Image, ImageDraw, ImageFont, ImageFilter, ImageOps, ImageEnhance
 
 ROOT = Path(__file__).resolve().parents[1]
 OUT = ROOT / "assets" / "social-preview.jpg"
-HERO = ROOT / "assets" / "photos" / "hero.jpg"
+HERO = ROOT / "assets" / "photos" / "social-portrait.jpg"
 
 W, H = 1200, 630
 BLACK = (9, 10, 11)
@@ -78,7 +78,7 @@ def draw_slash(base, xy, width, height, color, degrees=-12, alpha=255):
 
 def featured_portrait():
     source = Image.open(HERO).convert("RGB")
-    crop = cover_crop(source, (460, 560), focus=(0.56, 0.30))
+    crop = cover_crop(source, (460, 560), focus=(0.50, 0.31))
 
     crop = ImageEnhance.Brightness(crop).enhance(1.13)
     crop = ImageEnhance.Contrast(crop).enhance(1.12)
@@ -98,14 +98,6 @@ def featured_portrait():
     edge = Image.new("RGBA", out.size, BLACK + (0,))
     edge.putalpha(ImageOps.invert(vignette).point(lambda p: min(92, int(p * 0.58))))
     out.alpha_composite(edge)
-
-    halftone = Image.new("RGBA", out.size, (0, 0, 0, 0))
-    hd = ImageDraw.Draw(halftone)
-    for y in range(9, out.height, 18):
-        for x in range(9, out.width, 18):
-            if x > out.width * 0.58 or y < out.height * 0.20:
-                hd.ellipse((x - 2, y - 2, x + 2, y + 2), fill=CREAM + (55,))
-    out.alpha_composite(halftone)
 
     out.putalpha(rounded_mask(out.size, 26))
     return out

@@ -10,6 +10,31 @@ const index = read("index.html");
 const script = read("script.js");
 const styles = read("styles.css");
 
+function jpegSize(path) {
+  const buffer = readFileSync(join(root, path));
+  let offset = 2;
+
+  while (offset < buffer.length) {
+    if (buffer[offset] !== 0xff) {
+      offset += 1;
+      continue;
+    }
+
+    const marker = buffer[offset + 1];
+    const length = buffer.readUInt16BE(offset + 2);
+    if (marker >= 0xc0 && marker <= 0xc3) {
+      return {
+        height: buffer.readUInt16BE(offset + 5),
+        width: buffer.readUInt16BE(offset + 7),
+      };
+    }
+
+    offset += 2 + length;
+  }
+
+  throw new Error(`Could not read JPEG dimensions: ${path}`);
+}
+
 function publicAssetExists(path) {
   const fullPath = join(root, path);
   assert.ok(existsSync(fullPath), `Missing referenced asset: ${path}`);
@@ -23,6 +48,10 @@ assert.match(index, /2:00 PM/);
 assert.match(index, /Eagle Mountain, Utah/);
 assert.match(index, /RSVP for address/);
 assert.doesNotMatch(index, /Add the Google Form link/);
+assert.match(index, /<meta property="og:image" content="https:\/\/izzysgraduation\.com\/assets\/social-preview\.jpg">/);
+assert.match(index, /<meta property="og:image:width" content="1200">/);
+assert.match(index, /<meta property="og:image:height" content="630">/);
+assert.match(index, /<meta property="twitter:card" content="summary_large_image">/);
 assert.match(index, /fonts\.googleapis\.com\/css2\?family=Graduate/);
 assert.match(index, /family=Space\+Grotesk/);
 assert.match(styles, /--font-display: "Graduate"/);
@@ -53,6 +82,9 @@ for (const secret of ["5357", "Desert Lilly", "84005", "N. Desert"]) {
 assert.equal(index.includes("Red 90s detail."), false, "Removed hat gallery caption is still visible");
 assert.equal(index.includes("hat-thumb"), false, "Removed hat gallery image is still referenced");
 assert.equal(index.includes("hat-detail"), false, "Removed hat detail image is still referenced");
+
+const socialPreviewSize = jpegSize("assets/social-preview.jpg");
+assert.deepEqual(socialPreviewSize, { width: 1200, height: 630 }, "Social preview should be the standard OG image size");
 
 for (const [, src] of index.matchAll(/\s(?:src|href)="([^"]+)"/g)) {
   if (

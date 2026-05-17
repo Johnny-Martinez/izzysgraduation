@@ -1,5 +1,6 @@
 {
   "scripts": {
+    "build:social": "python3 tools/build_social_preview.py",
     "test": "node tests/site.test.mjs",
     "test:local": "ALLOW_PENDING_RSVP=1 node tests/site.test.mjs"
   },

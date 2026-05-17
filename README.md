@@ -4,7 +4,7 @@ Static invitation site for `izzysgraduation.com`.
 
 ## RSVP setup
 
-Create a free Google Form with these fields:
+The site links to the published Google Form in `script.js`. The form collects:
 
 - Name
 - Attending: yes/no
@@ -13,8 +13,8 @@ Create a free Google Form with these fields:
 - Optional note to Isaac
 
 Put the full party address in the Google Form confirmation message, not in this
-site. After the form is ready, paste the public form URL into `RSVP_FORM_URL` in
-`script.js`.
+site. The response sheet should keep a total-headcount formula so food planning
+can use the attending headcount instead of just RSVP rows.
 
 ## Photos
 

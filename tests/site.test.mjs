@@ -22,6 +22,7 @@ assert.match(index, /June 6, 2026/);
 assert.match(index, /2:00 PM/);
 assert.match(index, /Eagle Mountain, Utah/);
 assert.match(index, /RSVP for address/);
+assert.doesNotMatch(index, /Add the Google Form link/);
 assert.match(index, /fonts\.googleapis\.com\/css2\?family=Graduate/);
 assert.match(index, /family=Space\+Grotesk/);
 assert.match(styles, /--font-display: "Graduate"/);
@@ -68,6 +69,8 @@ for (const [, src] of index.matchAll(/\s(?:src|href)="([^"]+)"/g)) {
 
 assert.match(script, /const EVENT_DATE = new Date\("2026-06-06T14:00:00-06:00"\)/);
 assert.match(script, /const RSVP_FORM_URL = "/);
+assert.doesNotMatch(script, /Add the Google Form URL/);
+assert.doesNotMatch(read("README.md"), /paste the public form URL into `RSVP_FORM_URL`/);
 
 const rsvpMatch = script.match(/const RSVP_FORM_URL = "([^"]*)"/);
 assert.ok(rsvpMatch, "RSVP_FORM_URL constant is missing");

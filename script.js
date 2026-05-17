@@ -17,7 +17,7 @@ function openRsvp(event) {
   if (dialog && typeof dialog.showModal === "function") {
     dialog.showModal();
   } else {
-    window.alert("Add the Google Form URL to RSVP_FORM_URL in script.js.");
+    window.alert("The RSVP link could not open. Please refresh the page and try again.");
   }
 }
 

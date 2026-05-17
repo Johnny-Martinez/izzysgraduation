@@ -1,5 +1,5 @@
 from pathlib import Path
-from PIL import Image, ImageDraw, ImageFont, ImageFilter, ImageOps
+from PIL import Image, ImageDraw, ImageFont, ImageFilter, ImageOps, ImageEnhance
 
 
 ROOT = Path(__file__).resolve().parents[1]
@@ -76,35 +76,37 @@ def draw_slash(base, xy, width, height, color, degrees=-12, alpha=255):
     paste_rotated(base, layer, xy, degrees)
 
 
-def duotone_portrait():
+def featured_portrait():
     source = Image.open(HERO).convert("RGB")
     crop = cover_crop(source, (460, 560), focus=(0.56, 0.30))
-    gray = ImageOps.grayscale(crop)
-    gray = ImageOps.autocontrast(gray).filter(ImageFilter.UnsharpMask(radius=2, percent=145, threshold=3))
-    poster = gray.point(lambda p: 0 if p < 52 else 94 if p < 132 else 176 if p < 205 else 255)
 
-    palette = {
-        0: (8, 8, 8),
-        94: DARK_RED,
-        176: RED,
-        255: CREAM,
-    }
-    out = Image.new("RGBA", poster.size)
-    src = poster.load()
-    dst = out.load()
-    for y in range(out.height):
-        for x in range(out.width):
-            dst[x, y] = palette[src[x, y]] + (255,)
+    crop = ImageEnhance.Brightness(crop).enhance(1.13)
+    crop = ImageEnhance.Contrast(crop).enhance(1.12)
+    crop = ImageEnhance.Color(crop).enhance(1.04)
+    crop = crop.filter(ImageFilter.UnsharpMask(radius=1.6, percent=115, threshold=3))
+
+    out = crop.convert("RGBA")
+
+    # Keep a BMW-themed red grade, but leave the face readable.
+    red_grade = Image.new("RGBA", out.size, RED + (34,))
+    out = Image.alpha_composite(out, red_grade)
+
+    vignette = Image.new("L", out.size, 0)
+    vd = ImageDraw.Draw(vignette)
+    vd.rounded_rectangle((8, 8, out.width - 8, out.height - 8), radius=34, fill=210)
+    vignette = vignette.filter(ImageFilter.GaussianBlur(28))
+    edge = Image.new("RGBA", out.size, BLACK + (0,))
+    edge.putalpha(ImageOps.invert(vignette).point(lambda p: min(92, int(p * 0.58))))
+    out.alpha_composite(edge)
 
     halftone = Image.new("RGBA", out.size, (0, 0, 0, 0))
     hd = ImageDraw.Draw(halftone)
-    for y in range(8, out.height, 16):
-        for x in range(8, out.width, 16):
-            value = gray.getpixel((x, y))
-            if value > 110:
-                r = 2 if value > 185 else 3
-                hd.ellipse((x - r, y - r, x + r, y + r), fill=BLACK + (70,))
+    for y in range(9, out.height, 18):
+        for x in range(9, out.width, 18):
+            if x > out.width * 0.58 or y < out.height * 0.20:
+                hd.ellipse((x - 2, y - 2, x + 2, y + 2), fill=CREAM + (55,))
     out.alpha_composite(halftone)
+
     out.putalpha(rounded_mask(out.size, 26))
     return out
 
@@ -176,7 +178,7 @@ canvas.alpha_composite(shadow, (74, 75))
 canvas.alpha_composite(card, (58, 58))
 
 # Portrait module.
-portrait = duotone_portrait()
+portrait = featured_portrait()
 panel = Image.new("RGBA", (444, 548), (0, 0, 0, 0))
 pd = ImageDraw.Draw(panel)
 pd.rounded_rectangle((16, 18, 440, 544), radius=34, fill=BLACK)

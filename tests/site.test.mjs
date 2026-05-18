@@ -36,7 +36,8 @@ function jpegSize(path) {
 }
 
 function publicAssetExists(path) {
-  const fullPath = join(root, path);
+  const assetPath = path.split("?")[0];
+  const fullPath = join(root, assetPath);
   assert.ok(existsSync(fullPath), `Missing referenced asset: ${path}`);
   assert.ok(statSync(fullPath).size > 0, `Referenced asset is empty: ${path}`);
 }
@@ -100,8 +101,8 @@ for (const [, src] of index.matchAll(/\s(?:src|href)="([^"]+)"/g)) {
   if (
     src.startsWith("#") ||
     src.startsWith("http") ||
-    src === "styles.css" ||
-    src === "script.js"
+    src.startsWith("styles.css") ||
+    src.startsWith("script.js")
   ) {
     continue;
   }

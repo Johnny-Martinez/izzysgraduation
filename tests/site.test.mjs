@@ -58,6 +58,14 @@ assert.match(styles, /--font-display: "Graduate"/);
 assert.match(styles, /--font-body: "Space Grotesk"/);
 assert.match(styles, /\.photo-grid\s*{[\s\S]*column-count: 3;/, "Gallery should use a masonry column layout on desktop");
 assert.match(styles, /\.gallery-photo img\s*{[\s\S]*height: auto;[\s\S]*object-fit: contain;/, "Gallery photos should keep their natural crop");
+assert.match(styles, /\.gallery-trigger\s*{/, "Gallery photos should be clickable controls");
+assert.match(styles, /\.photo-lightbox\s*{/, "Large photo dialog styles are missing");
+assert.match(styles, /\.photo-lightbox::backdrop\s*{/, "Large photo backdrop styles are missing");
+assert.match(script, /data-lightbox-trigger/, "Gallery click handlers are missing");
+assert.match(script, /data-lightbox-image/, "Large photo image target is missing");
+assert.match(script, /showModal/, "Large photo dialog should open modally");
+assert.match(index, /<dialog class="photo-lightbox" data-lightbox aria-labelledby="lightbox-caption">/);
+assert.match(index, /data-lightbox-close/);
 
 const [, galleryMarkup = ""] = index.match(
   /<div class="photo-grid" aria-label="Photo gallery">([\s\S]*?)<\/div>\s*<\/section>/,
@@ -66,7 +74,9 @@ assert.ok(galleryMarkup, "Photo gallery markup is missing");
 
 const galleryMatches = [...galleryMarkup.matchAll(/assets\/photos\/gallery-(\d+)\.jpg/g)];
 const galleryNumbers = galleryMatches.map(([, number]) => Number(number));
+const lightboxTriggerMatches = [...galleryMarkup.matchAll(/data-lightbox-trigger/g)];
 assert.equal(galleryNumbers.length, 16, "Gallery should include the refreshed 16-photo set");
+assert.equal(lightboxTriggerMatches.length, 16, "Each gallery image should open the large photo viewer");
 assert.deepEqual(
   galleryNumbers,
   Array.from({ length: 16 }, (_, index) => index + 1),

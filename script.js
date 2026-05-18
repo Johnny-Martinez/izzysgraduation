@@ -4,6 +4,11 @@ const EVENT_DATE = new Date("2026-06-06T14:00:00-06:00");
 const rsvpLinks = document.querySelectorAll("[data-rsvp-link]");
 const dialog = document.querySelector("[data-rsvp-dialog]");
 const closeDialog = document.querySelector("[data-dialog-close]");
+const lightboxTriggers = document.querySelectorAll("[data-lightbox-trigger]");
+const lightbox = document.querySelector("[data-lightbox]");
+const lightboxImage = document.querySelector("[data-lightbox-image]");
+const lightboxCaption = document.querySelector("[data-lightbox-caption]");
+const closeLightbox = document.querySelector("[data-lightbox-close]");
 
 function openRsvp(event) {
   if (RSVP_FORM_URL) {
@@ -27,6 +32,55 @@ rsvpLinks.forEach((link) => {
 
 if (closeDialog) {
   closeDialog.addEventListener("click", () => dialog.close());
+}
+
+function openLightbox(trigger) {
+  const image = trigger.querySelector("img");
+  if (!image) {
+    return;
+  }
+
+  const figure = trigger.closest("figure");
+  const caption = figure?.querySelector("figcaption")?.textContent?.trim() || image.alt;
+
+  if (!lightbox || !lightboxImage || typeof lightbox.showModal !== "function") {
+    window.open(image.currentSrc || image.src, "_blank", "noopener,noreferrer");
+    return;
+  }
+
+  lightboxImage.src = image.currentSrc || image.src;
+  lightboxImage.alt = image.alt;
+
+  if (lightboxCaption) {
+    lightboxCaption.textContent = caption;
+  }
+
+  document.body.classList.add("is-lightbox-open");
+  lightbox.showModal();
+}
+
+lightboxTriggers.forEach((trigger) => {
+  trigger.addEventListener("click", () => openLightbox(trigger));
+});
+
+if (closeLightbox && lightbox) {
+  closeLightbox.addEventListener("click", () => lightbox.close());
+}
+
+if (lightbox) {
+  lightbox.addEventListener("click", (event) => {
+    if (event.target === lightbox) {
+      lightbox.close();
+    }
+  });
+
+  lightbox.addEventListener("close", () => {
+    document.body.classList.remove("is-lightbox-open");
+    if (lightboxImage) {
+      lightboxImage.removeAttribute("src");
+      lightboxImage.alt = "";
+    }
+  });
 }
 
 function updateCountdown() {
